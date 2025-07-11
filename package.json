@@ -8,10 +8,17 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build"
+    "type-check": "vue-tsc --build",
+    "openapi": "tsx openapi.config.ts"
   },
   "dependencies": {
+    "@umijs/openapi": "^1.13.15",
+    "ant-design-vue": "^4.2.6",
+    "install": "^0.13.0",
+    "npm": "^11.4.2",
+    "openapi": "^1.0.1",
     "pinia": "^3.0.3",
+    "tsx": "^4.20.3",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1"
   },
@@ -22,6 +29,7 @@
     "@vitejs/plugin-vue-jsx": "^5.0.0",
     "@vue/tsconfig": "^0.7.0",
     "npm-run-all2": "^8.0.4",
+    "ts-node": "^10.9.2",
     "typescript": "~5.8.0",
     "vite": "^7.0.0",
     "vite-plugin-vue-devtools": "^7.7.7",
