@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import request from "@/utils/request";
+import request from "umi-request";
 
 /** 获取用户列表 GET /api/user/ */
 export async function getUserDetail(
