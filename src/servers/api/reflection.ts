@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import request from "@/utils/request";
+import request from "umi-request";
 
 /** 获取反思记录列表 GET /api/reflection/ */
 export async function getReflectionDetail(

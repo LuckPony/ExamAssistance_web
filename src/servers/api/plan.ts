@@ -1,6 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
-import request from "@/utils/request";
+import request from "umi-request";
 
 /** 获取计划列表 GET /api/plan/ */
 export async function getPlanDeatil(

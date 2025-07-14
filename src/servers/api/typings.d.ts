@@ -20,6 +20,8 @@ declare namespace API {
     deal_time?: string;
     /** 计划是否完成 */
     finished?: boolean;
+    /** 计划所有者id */
+    user_id?: number;
     /** 页码 */
     page?: number;
     /** 每页数量 */
@@ -35,6 +37,8 @@ declare namespace API {
     create_time?: string;
     /** 请输入反思更新时间 */
     update_time?: string;
+    /** 请输入用户ID */
+    user_id?: number;
     /** 页码 */
     page?: number;
     /** 每页条数 */
@@ -74,6 +78,8 @@ declare namespace API {
     deal_time?: string;
     /** 计划是否完成 */
     finished?: boolean;
+    /** 用户ID */
+    user_id?: number;
   };
 
   type postPlanParams = {
@@ -103,6 +109,8 @@ declare namespace API {
     content?: string;
     /** 反思的计划ID */
     plan_id?: number;
+    /** 反思的用户ID */
+    user_id?: number;
   };
 
   type register = {
