@@ -57,6 +57,8 @@
       :data-source="tableData"
       row-key="id"
       bordered
+      :pagination="pagination"
+      @change="handleTableChange"
     >
     </a-table>
   </div>    
@@ -70,6 +72,8 @@
 
 import { getPlanDeatil } from "@/servers/api/plan";
 import { useUserStore } from "@/stores/user";
+import { Pagination, type TableColumnsType } from "ant-design-vue";
+import dayjs from "dayjs";
 import { ref, computed, onMounted } from "vue";
 const useStore = useUserStore();
 onMounted(() => {
@@ -77,7 +81,11 @@ onMounted(() => {
 
   getPlanDeatil({ user_id: userInfo.id}).then((res) => { 
     console.log(res);
-    const planData = res.data[0];
+    for (let i = 0; i < res.data.length; i++) { 
+      const planData = res.data[i];
+      obtainTableData(planData);
+    }
+    
     
   });
 });
@@ -90,8 +98,8 @@ type TableData = {
 }
 const tableData = ref<TableData[]>([]);
 const obtainTableData = (planData:API.plan) => { 
-  tableData.value = []
-  tableData.value = [
+  
+  tableData.value.push(
     {
       planname: planData.planname??'',
       content: planData.description??'',
@@ -99,7 +107,7 @@ const obtainTableData = (planData:API.plan) => {
       dealtime: planData.deal_time??'',
       finished: planData.finished??false,
     }
-  ]
+  );
 };
 
 // 12个月份选项
@@ -126,14 +134,35 @@ const filters = ref({
 });
 
 // 表格列配置
-const columns = [
+const columns: TableColumnsType<TableData> = [
+  { title: "编号", dataIndex: "planid", key: "planid", customRender:({index}:{index:number}) => {return (pagination.value.current - 1) * pagination.value.pageSize + index + 1} },
   { title: "计划名称", dataIndex: "planname", key: "planname" },
-  { title: "计划内容", dataIndex: "content", key: "content" },
-  { title: "制定日期", dataIndex: "createtime", key: "createtime" },
-  { title: "截止日期", dataIndex: "dealtime", key: "dealtime" },
+  { 
+    title: "计划内容", dataIndex: "content", key: "content",
+    width: 300, // 固定列宽
+    customCell: () => {
+    return {
+      style: {
+        whiteSpace: "normal",
+        wordBreak: "break-word",
+      },
+    };
+  },
+  },
+  { title: "制定日期", dataIndex: "createtime", key: "createtime",customRender: ({ text }: { text: string }) =>text ? dayjs(text).format("YYYY-MM-DD") : "--"},
+  { title: "截止日期", dataIndex: "dealtime", key: "dealtime",customRender: ({ text }: { text: string }) =>text ? dayjs(text).format("YYYY-MM-DD") : "--"},
   { title: "是否完成", dataIndex: "finished", key: "finished" },
 ];
-
+const pagination = ref({  //用于分页控制编号换页后也能够继续递增
+  current: 1,
+  pageSize: 5,
+  total: 0,
+  showTotal: (total: number) => `共 ${total} 条记录`
+});
+const handleTableChange = (paginationInfo: any) => { //监听分页动作
+  pagination.value.current = paginationInfo.current;
+  pagination.value.pageSize = paginationInfo.pageSize;
+};
 
 </script>
 
