@@ -60,7 +60,7 @@ const onFinish = (values: any) => {
             message.success('登录成功！');
             setTimeout(() => {
                 router.push('/plan');
-            }, 1000);
+            }, 500);
         } else {
             message.error('账号密码错误，登录失败！');
             useStore.clearUserInfo();

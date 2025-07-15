@@ -57,6 +57,8 @@ const handleClick = (e: any) => {
   if (e.key === 'logout') {
     // 处理退出登录
     router.push('/');
+    userStore.clearUserInfo();
+    location.reload();
     return;
   }
   
