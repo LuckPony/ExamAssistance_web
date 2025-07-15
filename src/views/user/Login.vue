@@ -54,8 +54,8 @@ const useStore = useUserStore();
 const onFinish = (values: any) => {
     postUserLogin(values).then((res) => {
         console.log(res);
-        localStorage.setItem('user', JSON.stringify(res.data));
-        useStore.setUserInfo({ ...res.data });
+        localStorage.setItem('user', JSON.stringify(res.data[0]));
+        useStore.setUserInfo({ ...res.data[0] });
         if (res.code === 200) {
             message.success('登录成功！');
             setTimeout(() => {

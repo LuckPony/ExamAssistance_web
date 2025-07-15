@@ -18,10 +18,11 @@
     <a-row :gutter="16" class="mb-4">
       <a-col :span="6">
         <a-select
-          v-model="filters.createdMonth"
+          v-model:value="beginMonth"
           placeholder="请选择制定月份"
           style="width: 100%"
-          
+          @change="inquery"
+        >
         >
           <a-select-option
             v-for="month in months"
@@ -35,9 +36,10 @@
 
       <a-col :span="6">
         <a-select
-          v-model="filters.deadlineMonth"
+          v-model:value="dealMonth"
           placeholder="请选择截止月份"
           style="width: 100%"
+          @change="inquery"
          
         >
           <a-select-option
@@ -70,7 +72,7 @@
 
 <script setup lang="ts">
 
-import { getPlanDeatil } from "@/servers/api/plan";
+import { getPlanDeatil, getPlanFuzzyInquiry } from "@/servers/api/plan";
 import { useUserStore } from "@/stores/user";
 import { Pagination, type TableColumnsType } from "ant-design-vue";
 import dayjs from "dayjs";
@@ -78,9 +80,10 @@ import { ref, computed, onMounted } from "vue";
 const useStore = useUserStore();
 onMounted(() => {
   const userInfo = useStore.getUserInfo();
-
+  
   getPlanDeatil({ user_id: userInfo.id}).then((res) => { 
-    console.log(res);
+    console.log(userInfo.id);
+    
     for (let i = 0; i < res.data.length; i++) { 
       const planData = res.data[i];
       obtainTableData(planData);
@@ -127,11 +130,6 @@ const months = ref([
   { label: "12 月", value: "12" },
 ]);
 
-// 筛选条件
-const filters = ref({
-  createdMonth: null,
-  deadlineMonth: null,
-});
 
 // 表格列配置
 const columns: TableColumnsType<TableData> = [
@@ -162,6 +160,22 @@ const pagination = ref({  //用于分页控制编号换页后也能够继续递�
 const handleTableChange = (paginationInfo: any) => { //监听分页动作
   pagination.value.current = paginationInfo.current;
   pagination.value.pageSize = paginationInfo.pageSize;
+};
+const beginMonth = ref(''); 
+const dealMonth = ref(''); 
+const inquery = (value: any) => { //筛选函数
+  // 根据筛选条件过滤数据
+  tableData.value = [];//清空数据
+  getPlanFuzzyInquiry({begin_month:beginMonth.value, deal_month:dealMonth.value, user_id:useStore.getUserInfo().id}).then((res) => { 
+    console.log(res);
+    for (let i = 0; i < res.data.length; i++) { 
+      const planData = res.data[i];
+      obtainTableData(planData);
+    }
+  });
+ 
+
+  
 };
 
 </script>

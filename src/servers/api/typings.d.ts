@@ -28,6 +28,15 @@ declare namespace API {
     size?: number;
   };
 
+  type getPlanFuzzyInquiryParams = {
+    /** 计划开始月份 */
+    begin_month?: string;
+    /** 计划截止月份 */
+    deal_month?: string;
+    /** 计划所有者id */
+    user_id?: number;
+  };
+
   type getReflectionDetailParams = {
     /** 请输入反思计划ID */
     plan_id?: number;

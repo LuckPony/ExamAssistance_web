@@ -72,3 +72,20 @@ export async function deletePlan(
     ...(options || {}),
   });
 }
+
+/** 根据时间模糊查询获取计划列表 GET /api/plan/getByData */
+export async function getPlanFuzzyInquiry(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getPlanFuzzyInquiryParams,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/api/plan/getByData", {
+    method: "GET",
+    params: {
+      // user_id has a default value: 1
+      user_id: "1",
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

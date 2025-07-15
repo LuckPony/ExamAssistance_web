@@ -28,9 +28,7 @@ export const useUserStore = defineStore('user', () => {  //defineStore 定义一
     }
     //获取用户信息
     function getUserInfo() {
-        if (!isLogin.value) {
-            initUserInfo()
-        }
+        
         return userInfo.value
     }
 
