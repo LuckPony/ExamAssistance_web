@@ -16,7 +16,7 @@ const router = createRouter({
     {
       path: '/reflection',
       name: 'Reflection',
-      component:()=>import('../views/reflaction/Reflection.vue'),
+      component:()=>import('../views/plan/planTotal.vue'),
     },
    
   ],

@@ -21,20 +21,20 @@ const items = ref<MenuProps['items']>([
   {
     key: 'plan',
     icon: () => h(MailOutlined),
-    label: '计划',
-    title: '计划',
+    label: '首页',
+    title: '首页',
   },
   {
     key: 'reflection',
     icon: () => h(AppstoreOutlined),
-    label: '反思',
-    title: '反思',
+    label: '计划',
+    title: '计划',
   },
   {
     key: 'analysis',
     icon: () => h(SettingOutlined),
-    label: '分析',
-    title: '分析',
+    label: '当日规划',
+    title: '当日规划',
   },
   {    key: 'user',    icon: () => h(UserOutlined),    label: '我的信息',    title: '我的信息',  },
   {
