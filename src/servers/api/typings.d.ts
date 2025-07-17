@@ -11,6 +11,22 @@ declare namespace API {
     id: string;
   };
 
+  type exam = {
+    /** 考试id */
+    id?: number;
+    /** 考试1开始时间 */
+    date1?: string;
+    /** 考试2开始时间 */
+    date2?: string;
+    /** 用户id */
+    user_id?: number;
+  };
+
+  type getExamParams = {
+    /** 用户id */
+    user_id: number;
+  };
+
   type getPlanDeatilParams = {
     /** 计划名称 */
     planname?: string;

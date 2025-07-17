@@ -3,7 +3,7 @@
     <a-row justify="center" align="middle">
       <a-col :span="12" :offset="6">
         <span style = "font-size:25px">
-          ⏳距离考试1还剩<span style="font-size: 40px;font-weight:800;">{{ day1 }}</span>天
+          ⏳距离考试1还剩<span style="font-size: 40px;font-weight:800;">{{day1}}</span>天
         </span>
       </a-col>
       <a-col :span="12" :offset="6">
@@ -113,6 +113,7 @@
 
 <script setup lang="ts">
 
+import { getExam, putExam } from "@/servers/api/exam";
 import { deletePlan, getPlanDeatil, getPlanFuzzyInquiry, postPlan, putPlan } from "@/servers/api/plan";
 import { useUserStore } from "@/stores/user";
 import { message, Pagination, type TableColumnsType } from "ant-design-vue";
@@ -132,6 +133,13 @@ onMounted(() => {   //相当于周期钩子函数，周期开始就运行
     
     
   });
+  
+  getExam({ user_id: userInfo.id??0}).then((res) => {
+    console.log(res.data.date1);
+    day1.value = dayjs(res.data.date1).diff(dayjs(), "day");
+    day2.value = dayjs(res.data.date2).diff(dayjs(), "day");
+  })
+
 });
 type TableData = {
   id: number;
@@ -150,13 +158,13 @@ const obtainTableData = (planData:API.plan) => {
   const Days2 = now.diff(dayjs(planData.deal_time), "day");
   let remainingDays;
   if (Days < 0) {
-    remainingDays = "尚未开始"
+    remainingDays = "🩶 尚未开始"
   }
   else if(Days2>0){
-    remainingDays = "已结束"
+    remainingDays = "💜 已结束"
   }
   else{
-    remainingDays = `还剩${-Days2}天`;
+    remainingDays = `💚 还剩${-Days2}天`;
   }
   
   tableData.value.push(
@@ -301,16 +309,20 @@ const delPlan = (record: any) => {
 
 //设置考试修改日期
 const openModifyExamData = ref<boolean>(false);//控制修改窗口的关闭与打开
-const Day1 = ref<Date>();//监听输入的两个考试日期
-const Day2 = ref<Date>();
-let day1 = ref<number>(0);//用于页面显示剩余天数
-let day2 = ref<number>(0);
+const Day1 = ref<any>();//监听输入的两个考试日期
+const Day2 = ref<any>();
+
 const OpenModifyExamData = () => {
   openModifyExamData.value = !openModifyExamData.value;
 }
+const day1 = ref<number>(0);//监听页面显示的剩余天数
+const day2 = ref<number>(0);
 const modifyExamData = () => {
-  day1.value = dayjs(Day1.value).diff(dayjs(), 'day');
-  day2.value = dayjs(Day2.value).diff(dayjs(), 'day');
+  putExam({user_id:useStore.getUserInfo().id,date1:Day1.value, date2:Day2.value}).then((res: any) => { 
+    day1.value = dayjs(res.data.date1).diff(dayjs(), 'day');
+    day2.value = dayjs(res.data.date2).diff(dayjs(), 'day');
+
+  });
   message.success('修改成功');
   setTimeout(() => {
     OpenModifyExamData(); 
