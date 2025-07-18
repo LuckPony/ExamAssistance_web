@@ -3,62 +3,31 @@
     <a-row justify="center" align="middle">
       <a-col :span="12" :offset="6">
         <span style = "font-size:25px">
-          ⏳距离考试1还剩<span style="font-size: 40px;font-weight:800;">{{day1}}</span>天
+          Today：<span style="font-size: 30px;font-weight:800;">{{currentData}}--{{ currentWeek }}</span>
         </span>
       </a-col>
-      <a-col :span="12" :offset="6">
+      <a-col :span="12" :offset="10">
         <span style = "font-size:25px">
-          ⏳距离考试2还剩<span style="font-size: 40px;font-weight:800;">{{ day2 }}</span>天
+          <span style="font-size: 40px;font-weight:800;">{{ currentTime }}</span>
+        </span>
+      </a-col>
+      <a-col :span="6" :offset="20">
+        <span style = "font-size:25px">
+          新的一天也要元气满满呢！
         </span>
       </a-col>
     </a-row>
     <div class="plan-list"> <!--TailwindCSS写法-->
     <!-- 筛选区域 -->
-     <h3>查询计划：</h3>
+     <h3>
+        今天您一共存在<span style="font-size: 30px; font-weight: 800; color: #409EFF;">{{ plansToday }}</span>项计划，
+        还有<span style="font-size: 30px; font-weight: 800; color: #67C23A;">{{ plansTodayUnFinished }}</span>项计划待完成!
+        继续加油欧~~~
+    
+    </h3>
     <a-row :gutter="16" class="mb-4">
-      <a-col :span="6">
-        <a-select
-          v-model:value="beginMonth"
-          placeholder="请选择制定月份"
-          allowClear
-          style="width: 100%"
-          @change="inquery"
-        >
-        >
-          <a-select-option
-            v-for="month in months"
-            :key="month.value"
-            :value="month.value"
-          >
-            {{ month.label }}
-          </a-select-option>
-        </a-select>
-      </a-col>
-
-      <a-col :span="6">
-        <a-select
-          v-model:value="dealMonth"
-          placeholder="请选择截止月份"
-          allowClear
-          style="width: 100%"
-          @change="inquery"
-         
-        >
-          <a-select-option
-            v-for="month in months"
-            :key="month.value"
-            :value="month.value"
-            
-          >
-            {{ month.label }}
-          </a-select-option>
-        </a-select>
-      </a-col>
       <a-col :span="1.5">
         <a-button type="default" @click="transformAddPlan">新增计划</a-button>
-      </a-col>
-      <a-col :span="6">
-        <a-button type="dashed" @click="OpenModifyExamData">修改考试日期</a-button>
       </a-col>
 
     </a-row>
@@ -96,19 +65,6 @@
     </a-modal>      
         
   </div>
-  <div>
-    <a-modal v-model:open="openModifyExamData" title="修改" @ok="modifyExamData" @cancel="">
-      <a-form>
-        <a-form-item label="考试1日期">
-          <a-date-picker v-model:value="Day1" placeholder="请选择考试日期" />
-        </a-form-item>
-        <a-form-item label="考试2日期">
-          <a-date-picker v-model:value="Day2" placeholder="请选择考试日期" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
-  </div>
-
 </template>
 
 <script setup lang="ts">
@@ -116,30 +72,44 @@
 import { getExam, putExam } from "@/servers/api/exam";
 import { deletePlan, getPlanDeatil, getPlanFuzzyInquiry, postPlan, putPlan } from "@/servers/api/plan";
 import { useUserStore } from "@/stores/user";
-import { message, Pagination, type TableColumnsType } from "ant-design-vue";
+import { message, type TableColumnsType } from "ant-design-vue";
 import dayjs from "dayjs";
-import { ref, computed, onMounted, h } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 const useStore = useUserStore();
 onMounted(() => {   //相当于周期钩子函数，周期开始就运行
   const userInfo = useStore.getUserInfo();
+  const todayStart = dayjs().startOf('day'); //获取当天开始时间00:00:00
+  const todayEnd = dayjs().endOf('day'); //获取当天结束时间23:59:59
+  
   
   getPlanDeatil({ user_id: userInfo.id}).then((res) => { 
     console.log(userInfo.id);
-    
+    plansToday.value = res.data.length;//显示总计划数
+    let j= 0;
     for (let i = 0; i < res.data.length; i++) { 
       const planData = res.data[i];
-      obtainTableData(planData);
+      //开始时间在今天截止时间之前，结束时间在今天开始之后
+      if (dayjs(planData.begin_time).diff(todayEnd, "minute") <= 0 && dayjs(planData.deal_time).diff(todayStart, "minute") >= 0){
+        console.log(dayjs(planData.deal_time).diff(dayjs(), "day"))
+        obtainTableData(planData);
+        if (dayjs(planData.deal_time).diff(dayjs(), "day") > 0) {
+            plansTodayUnFinished.value = plansTodayUnFinished.value + 1;
+        }
+        j++;
+      } 
     }
+    plansToday.value = j;
     
     
   });
   
-  getExam({ user_id: userInfo.id??0}).then((res) => {
-    console.log(res.data.date1);
-    day1.value = dayjs(res.data.date1).diff(dayjs(), "day");
-    day2.value = dayjs(res.data.date2).diff(dayjs(), "day");
-  })
+  timer = window.setInterval(() => {
+    currentTime.value = dayjs().format("HH:mm:ss"); 
+  }, 1000);
 
+});
+onUnmounted(() => {
+    clearInterval(timer); // 组件卸载时清除定时器,防止内存泄漏
 });
 type TableData = {
   id: number;
@@ -156,17 +126,16 @@ const obtainTableData = (planData:API.plan) => {
   
   const Days = now.diff(dayjs(planData.begin_time), "minute");
   const Days2 = now.diff(dayjs(planData.deal_time), "minute");
-  
   let remainingDays;
   if (Days < 0) {
     remainingDays = "🩶 尚未开始"
   }
-  else if(Days2>=0){
+  else if(Days2>0){
     remainingDays = "💜 已结束"
   }
   else{
     const transDays = -Days2;
-    remainingDays = `💚 还剩${(Math.floor(transDays/1440))}天`;
+    remainingDays = `💚 还剩${Math.floor(transDays / 1440)}天`;
   }
   
   tableData.value.push(
@@ -181,24 +150,6 @@ const obtainTableData = (planData:API.plan) => {
     }
   );
 };
-
-// 12个月份选项
-const months = ref([
-  { label: "", value: "" },
-  { label: "1 月", value: "01" },
-  { label: "2 月", value: "02" },
-  { label: "3 月", value: "03" },
-  { label: "4 月", value: "04" },
-  { label: "5 月", value: "05" },
-  { label: "6 月", value: "06" },
-  { label: "7 月", value: "07" },
-  { label: "8 月", value: "08" },
-  { label: "9 月", value: "09" },
-  { label: "10 月", value: "10" },
-  { label: "11 月", value: "11" },
-  { label: "12 月", value: "12" },
-]);
-
 
 // 表格列配置
 const columns: TableColumnsType<TableData> = [
@@ -232,22 +183,6 @@ const handleTableChange = (paginationInfo: any) => { //监听分页动作
   pagination.value.current = paginationInfo.current;
   pagination.value.pageSize = paginationInfo.pageSize;
 };
-// 设置筛选条件
-const beginMonth = ref(''); 
-const dealMonth = ref(''); 
-
-const inquery = (value: any) => { //筛选函数
-  // 根据筛选条件过滤数据
-  tableData.value = [];//清空数据
-  getPlanFuzzyInquiry({begin_month:beginMonth.value, deal_month:dealMonth.value, user_id:useStore.getUserInfo().id}).then((res) => { 
-    console.log(res);
-    for (let i = 0; i < res.data.length; i++) { 
-      const planData = res.data[i];
-      obtainTableData(planData);
-    }
-  });
-};
-
 //设置新增计划弹窗
 const openAddPlan = ref<boolean>(false);
 const addPlanname = ref<string>('');
@@ -309,28 +244,15 @@ const delPlan = (record: any) => {
   }); 
 };
 
-//设置考试修改日期
-const openModifyExamData = ref<boolean>(false);//控制修改窗口的关闭与打开
-const Day1 = ref<any>();//监听输入的两个考试日期
-const Day2 = ref<any>();
+//设置时间显示
+const currentData = ref(dayjs().format('YYYY-MM-DD'));
+const currentWeek = ref(dayjs().format('dddd'));//默认是英文，可以通过 dayjs.locale("zh-cn"); 设置全局中文
+const currentTime = ref(dayjs().format('HH:mm:ss'));
+let timer:number;//定时器，用于定时刷新时间
 
-const OpenModifyExamData = () => {
-  openModifyExamData.value = !openModifyExamData.value;
-}
-const day1 = ref<number>();//监听页面显示的剩余天数
-const day2 = ref<number>();
-const modifyExamData = () => {
-  putExam({user_id:useStore.getUserInfo().id,date1:Day1.value, date2:Day2.value}).then((res: any) => { 
-    day1.value = dayjs(res.data.date1).diff(dayjs(), 'day');
-    day2.value = dayjs(res.data.date2).diff(dayjs(), 'day');
-
-  });
-  message.success('修改成功');
-  setTimeout(() => {
-    OpenModifyExamData(); 
-    
-  }, 500);
-};
+//设置计划统计
+const plansToday = ref<number>(0);
+const plansTodayUnFinished = ref<number>(0);
 </script>
 
 <style scoped>

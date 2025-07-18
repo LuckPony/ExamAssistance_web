@@ -14,9 +14,19 @@ const router = createRouter({
       component:()=>import('../views/plan/Plan.vue'),
     },
     {
-      path: '/reflection',
-      name: 'Reflection',
+      path: '/planTotal',
+      name: 'PlanTotal',
       component:()=>import('../views/plan/planTotal.vue'),
+    },
+    {
+      path: '/planToday',
+      name: 'PlanToday',
+      component:()=>import('../views/plan/planToday.vue'),
+    },
+     {
+      path: '/myInfo',
+      name: 'MyInfo',
+      component:()=>import('../views/user/myInfo.vue'),
     },
    
   ],

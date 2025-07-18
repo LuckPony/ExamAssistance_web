@@ -25,18 +25,21 @@ const items = ref<MenuProps['items']>([
     title: '首页',
   },
   {
-    key: 'reflection',
+    key: 'planTotal',
     icon: () => h(AppstoreOutlined),
     label: '计划',
     title: '计划',
   },
   {
-    key: 'analysis',
+    key: 'planToday',
     icon: () => h(SettingOutlined),
     label: '当日规划',
     title: '当日规划',
   },
-  {    key: 'user',    icon: () => h(UserOutlined),    label: '我的信息',    title: '我的信息',  },
+  { key: 'myInfo',
+    icon: () => h(UserOutlined),    
+    label: '我的信息',    
+    title: '我的信息',  },
   {
     key: 'logout',
     icon: () => h(LogoutOutlined),
@@ -50,9 +53,17 @@ const handleClick = (e: any) => {
   if(e.key ==='plan'){
     router.push('/plan');
   }
-  if (e.key === 'reflection') {
+  if (e.key === 'planTotal') {
     // 处理分析
-    router.push('/reflection');
+    router.push('/planTotal');
+  }
+  if (e.key === 'planToday') {
+    // 处理分析
+    router.push('/planToday');
+  }
+  if (e.key === 'myInfo') {
+    // 处理用户管理
+    router.push('/myInfo');
   }
   if (e.key === 'logout') {
     // 处理退出登录
