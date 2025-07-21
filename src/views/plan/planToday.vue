@@ -49,17 +49,45 @@
       </template>
     </template>
     </a-table>
-    </div>    
+    </div>
+
+    <!-- 新增计划弹窗 -->
     <a-modal v-model:open="openAddPlan" title="新增计划" @ok="addPlan" @cancel="">
       <a-form>
         <a-form-item label="计划名称">
-          <a-input v-model:value="addPlanname" placeholder="请输入计划名称"  />
+          <a-input v-model:value="addPlanname" placeholder="请输入计划名称" />
         </a-form-item>
+
         <a-form-item label="计划内容">
-          <a-input v-model:value="addContent" placeholder="请输入计划内容"  />
+          <a-input v-model:value="addContent" placeholder="请输入计划内容" />
         </a-form-item>
-        <a-form-item label="计划进行时间">
-          <a-range-picker v-model:value="addTime" show-time />
+
+        <a-form-item label="开始日期">
+          <a-date-picker
+            v-model:value="addStartTime"
+            placeholder="请选择开始日期"
+            show-time
+            @change="handleStartDateChange"
+          />
+        </a-form-item>
+
+        <a-form-item label="持续天数">
+          <a-input-number
+            v-model:value="durationDays"
+            :min="1"
+            placeholder="输入天数"
+            style="width: 100%"
+            @change="handleDurationChange"
+          />
+        </a-form-item>
+
+        <a-form-item label="截止日期">
+          <a-date-picker
+            v-model:value="addEndTime"
+            placeholder="请选择截止日期"
+            show-time
+            @change="handleEndDateChange"
+          />
         </a-form-item>
       </a-form>
     </a-modal>      
@@ -92,7 +120,7 @@ onMounted(() => {   //相当于周期钩子函数，周期开始就运行
       if (dayjs(planData.begin_time).diff(todayEnd, "minute") <= 0 && dayjs(planData.deal_time).diff(todayStart, "minute") >= 0){
         console.log(dayjs(planData.deal_time).diff(dayjs(), "day"))
         obtainTableData(planData);
-        if (dayjs(planData.deal_time).diff(dayjs(), "day") > 0 && planData.finished === false) {
+        if (dayjs(planData.deal_time).diff(dayjs(), "minute") > 0 && planData.finished === false) {
             plansTodayUnFinished.value = plansTodayUnFinished.value + 1;
         }
         j++;
@@ -183,36 +211,59 @@ const handleTableChange = (paginationInfo: any) => { //监听分页动作
   pagination.value.current = paginationInfo.current;
   pagination.value.pageSize = paginationInfo.pageSize;
 };
-//设置新增计划弹窗
-const openAddPlan = ref<boolean>(false);
-const addPlanname = ref<string>('');
-const addContent = ref<string>('');
-const addTime = ref<any>([]);
+// 新增计划弹窗
+const openAddPlan = ref(false);
+const addPlanname = ref("");
+const addContent = ref("");
+const addStartTime = ref<any>(null);
+const addEndTime = ref<any>(null);
+const durationDays = ref<number | null>(null);
+const handleStartDateChange = (value: any) => {
+  if (durationDays.value) {
+    addEndTime.value = dayjs(value).add(durationDays.value, "day");
+  }
+};
+
+const handleDurationChange = (value: number) => {
+  if (addStartTime.value) {
+    addEndTime.value = dayjs(addStartTime.value).add(value, "day");
+  }
+};
+
+const handleEndDateChange = (value: any) => {
+  if (addStartTime.value) {
+    durationDays.value = dayjs(value).diff(dayjs(addStartTime.value), "day");
+  }
+};
 
 const transformAddPlan = () => { 
   openAddPlan.value = !openAddPlan.value
 };
-const addPlan = () => { 
-  const planData = { 
+const addPlan = () => {
+  if (!addStartTime.value || !addEndTime.value) {
+    message.error("请填写完整的时间");
+    return;
+  }
+
+  const planData = {
     planname: addPlanname.value,
     description: addContent.value,
     user_id: useStore.getUserInfo().id,
-    begin_time: addTime.value[0],
-    deal_time: addTime.value[1],
+    begin_time: addStartTime.value,
+    deal_time: addEndTime.value,
   };
-  
-  postPlan({id:"0"}, planData).then((res) => { //此处的id后端接口中没用到，只是为了复用接口
-    if (res.code === 200) { 
-      message.success('添加计划成功');
-      setTimeout(() => { 
+
+  postPlan({ id: "0" }, planData).then((res) => {
+    if (res.code === 200) {
+      message.success("添加计划成功");
+      setTimeout(() => {
         location.reload();
         transformAddPlan();
       }, 500);
-      
-    } else { 
-      message.error('添加计划失败');
-  }
-});
+    } else {
+      message.error("添加计划失败");
+    }
+  });
 };
 //设置完成按钮功能
 const planFinished = (record: any) => {
