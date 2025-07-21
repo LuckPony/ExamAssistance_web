@@ -8,12 +8,12 @@
 
 <script setup lang="ts">
 import { h, ref } from 'vue'
-import { MailOutlined, AppstoreOutlined, SettingOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons-vue';
-import type{ MenuProps } from 'ant-design-vue';
+import { MailOutlined, AppstoreOutlined, SettingOutlined, UserOutlined, LogoutOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
+import{ Modal, type MenuProps } from 'ant-design-vue';
 import router from '@/router';
 import { useUserStore } from '@/stores/user';
 
-const current = ref<string[]>(['grade']);
+const current = ref<string[]>(['plan']);
 const userStore = useUserStore();
 
 
@@ -66,10 +66,24 @@ const handleClick = (e: any) => {
     router.push('/myInfo');
   }
   if (e.key === 'logout') {
-    // 处理退出登录
-    router.push('/');
-    userStore.clearUserInfo();
-    location.reload();
+    // 弹出确认提示
+    Modal.confirm({
+      title: '确认退出登录吗？',
+      icon: h(ExclamationCircleOutlined),
+      content: '退出后需要重新登录才能访问系统。',
+      okText: '确定',
+      cancelText: '取消',
+      onOk() {
+        // 用户点击确定
+        userStore.clearUserInfo();
+        router.push('/');
+        location.reload();
+      },
+      onCancel() {
+        current.value = [];//清空选中项，避免高亮停留，防止出现点击同一个 key 不触发 select事件的问题
+        console.log('取消退出');
+      },
+    });
     return;
   }
   

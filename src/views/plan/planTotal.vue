@@ -184,7 +184,7 @@ const obtainTableData = (planData:API.plan) => {
 
 // 12个月份选项
 const months = ref([
-  { label: "", value: "" },
+  { label: "全部", value: "" },
   { label: "1 月", value: "01" },
   { label: "2 月", value: "02" },
   { label: "3 月", value: "03" },
@@ -233,13 +233,13 @@ const handleTableChange = (paginationInfo: any) => { //监听分页动作
   pagination.value.pageSize = paginationInfo.pageSize;
 };
 // 设置筛选条件
-const beginMonth = ref(''); 
-const dealMonth = ref(''); 
+const beginMonth = ref(null); 
+const dealMonth = ref(null); 
 
 const inquery = (value: any) => { //筛选函数
   // 根据筛选条件过滤数据
   tableData.value = [];//清空数据
-  getPlanFuzzyInquiry({begin_month:beginMonth.value, deal_month:dealMonth.value, user_id:useStore.getUserInfo().id}).then((res) => { 
+  getPlanFuzzyInquiry({begin_month:beginMonth.value??"", deal_month:dealMonth.value??"", user_id:useStore.getUserInfo().id}).then((res) => { 
     console.log(res);
     for (let i = 0; i < res.data.length; i++) { 
       const planData = res.data[i];

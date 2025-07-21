@@ -92,7 +92,7 @@ onMounted(() => {   //相当于周期钩子函数，周期开始就运行
       if (dayjs(planData.begin_time).diff(todayEnd, "minute") <= 0 && dayjs(planData.deal_time).diff(todayStart, "minute") >= 0){
         console.log(dayjs(planData.deal_time).diff(dayjs(), "day"))
         obtainTableData(planData);
-        if (dayjs(planData.deal_time).diff(dayjs(), "day") > 0) {
+        if (dayjs(planData.deal_time).diff(dayjs(), "day") > 0 && planData.finished === false) {
             plansTodayUnFinished.value = plansTodayUnFinished.value + 1;
         }
         j++;
