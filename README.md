@@ -1,36 +1,28 @@
-# ExamAssistance_web
 
-This template should help get you started developing with Vue 3 in Vite.
+软件名称：备考辅助系统
+版本号：1.0
+开发语言：Python
+数据库：MySQL
+前端框架：Vite+Vue
+后端框架：Flask+SQLAlchemy
+开发时间：2025.07.20
+使用网址：/http://113.44.59.175/
 
-## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+功能介绍：
+1. 用户登录注册：用户可以通过注册账号登录系统，也可以使用默认账号登录。
+2. 计划管理：用户可以添加、修改、删除、查询自己的计划，包括计划名称、截止日期、计划内容等。
+3. 计划筛选：用户可以根据计划名称、截止日期、计划内容等条件筛选自己的计划。
+4. 计划统计：用户可以查看自己的计划完成情况，包括计划完成百分比、计划完成数量、计划未完成数量等。
+5. 每日统计：用户可以查看每日计划完成情况，包括今天正在进行的以及待完成的计划项
+后期会添加提醒功能，用户可绑定邮箱，通过邮箱进行定时提醒
 
-## Type Support for `.vue` Imports in TS
+使用说明：
+暂时没有配置域名，大家可以使用上面的IP地址进行注册登录后访问，以使用该备考系统。该系统仅供学习参考，请勿用于商业用途。
+如果需要什么bug或者问题，请提issue。如果有什么新功能需求，请提issue。
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
 
-## Customize configuration
 
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
 更新日志：
 2025.07.21
 1. 改善登录用户名不区分大小写问题;
@@ -39,4 +31,4 @@ npm run build
 4. 增加退出登录的确认框提示;
 5. 新增计划时添加了持续时间，可以通过开始时间和持续时间计算结束时间，也可以正常输入截止日期，会自动计算继续时间
 6. 修复不能连续点击退出登录的问题
-
+7. 增加了用户注册功能
