@@ -152,6 +152,8 @@ onMounted(() => {
       const planData = res.data[i];
       obtainTableData(planData);
     }
+    //按照开始时间排序
+    tableData.value.sort((a, b) => dayjs(a.begintime).valueOf() - dayjs(b.begintime).valueOf());
   });
 
   getExam({ user_id: userInfo.id ?? 0 }).then((res) => {
@@ -218,8 +220,8 @@ const columns: TableColumnsType<TableData> = [
   { title: "编号", dataIndex: "planid", key: "planid", width: "80px", customRender: ({ index }: { index: number }) => (pagination.value.current - 1) * pagination.value.pageSize + index + 1 },
   { title: "计划名称", dataIndex: "planname", key: "planname", width: "150px" },
   { title: "计划内容", dataIndex: "content", key: "content", width: 300, customCell: () => ({ style: { whiteSpace: "normal", wordBreak: "break-word" } }) },
-  { title: "制定日期", dataIndex: "begintime", key: "begintime", width: "150px", customRender: ({ text }: { text: string }) => text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "--" },
-  { title: "截止日期", dataIndex: "dealtime", key: "dealtime", width: "150px", customRender: ({ text }: { text: string }) => text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "--" },
+  { title: "开始时间", dataIndex: "begintime", key: "begintime", width: "150px", customRender: ({ text }: { text: string }) => text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "--" },
+  { title: "截止时间", dataIndex: "dealtime", key: "dealtime", width: "150px", customRender: ({ text }: { text: string }) => text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "--" },
   { title: "状态", dataIndex: "remainingDays", key: "remainingDays", width: "100px" },
   { title: "是否完成", dataIndex: "finished", key: "finished", width: "100px", customRender: ({ text }: { text: boolean }) => (text ? "✅" : "❌") },
   { title: "操作", key: "action", width: 170 },

@@ -127,7 +127,7 @@ onMounted(() => {   //相当于周期钩子函数，周期开始就运行
       } 
     }
     plansToday.value = j;
-    
+    tableData.value.sort((a, b) => dayjs(a.begintime).valueOf() - dayjs(b.begintime).valueOf());
     
   });
   
@@ -177,6 +177,7 @@ const obtainTableData = (planData:API.plan) => {
       remainingDays:remainingDays,
     }
   );
+  
 };
 
 // 表格列配置
@@ -195,8 +196,8 @@ const columns: TableColumnsType<TableData> = [
     };
   },
   },
-  { title: "制定日期", dataIndex: "begintime", key: "createtime",width: "150px",customRender: ({ text }: { text: string }) =>text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "--"},
-  { title: "截止日期", dataIndex: "dealtime", key: "dealtime",width: "150px",customRender: ({ text }: { text: string }) =>text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "--"},
+  { title: "开始时间", dataIndex: "begintime", key: "createtime",width: "150px",customRender: ({ text }: { text: string }) =>text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "--"},
+  { title: "截止时间", dataIndex: "dealtime", key: "dealtime",width: "150px",customRender: ({ text }: { text: string }) =>text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "--"},
   { title: "状态", dataIndex: "remainingDays", key: "remainingDays",width: "100px", },
   { title: "是否完成", dataIndex: "finished", key: "finished", width:"100px",customRender: ({ text }: { text: boolean }) => (text ? "✅ " : "❌ "), },
   {title: "操作",key: "action",width:170}
