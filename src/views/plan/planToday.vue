@@ -41,9 +41,9 @@
       :pagination="pagination"
       @change="handleTableChange"
     >
-    <template #bodyCell="{ column, record }">
+    <template #bodyCell="{ column, record }" class = "table-cell">
       <template v-if="column.key === 'action'">
-        <a-button type="primary" @click="planFinished(record)" :disabled="record.finished" >完成</a-button>
+        <a-button type="primary" @click="planFinished(record)" :disabled="record.finished" class="finish-button" >完成</a-button>
         
         <a-button class="delete-button" type="primary" @click="delPlan(record)">删除</a-button>
       </template>
@@ -315,6 +315,7 @@ const plansTodayUnFinished = ref<number>(0);
     overflow:scroll;
     padding: 20px;
     padding-bottom: 0px;
+    min-width:600px;
 }
 
 h1 {
@@ -325,11 +326,26 @@ h1 {
   background: #fff;
   border-radius: 8px;
 }
+.finish-button:not(:disabled){
+  background-color: green;
+  margin-right:10px;
+}
+.finish-button:not(:disabled):hover{
+  background-color:#409eff !important;
+  margin-right:10px;
+}
 .delete-button{
-  margin-left: 10px;
+  margin-left: 0px;
+  background-color: red;
 }
 h3{
   margin-left:10px;
+}
+.table-cell{
+  display:flex;
+  flex-wrap: wrap;
+  align-items: center;
+  
 }
 
 </style>

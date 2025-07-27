@@ -371,6 +371,9 @@ const modifyExamData = () => {
 .finish-button:not(:disabled) {
   background-color: green ;
 }
+.finish-button:not(:disabled):hover {
+  background-color: #409eff !important ;
+}
 
 .delete-button  {
   margin-left: 0px;
