@@ -70,10 +70,10 @@
         :pagination="pagination"
         @change="handleTableChange"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'action'">
-            <a-button type="primary" @click="planFinished(record)" :disabled="record.finished">完成</a-button>
-            <a-button class="delete-button" type="primary" @click="delPlan(record)">删除</a-button>
+        <template #bodyCell="{ column, record }" class="table-cell">
+          <template v-if="column.key === 'action'" >
+            <a-button type="primary" @click="planFinished(record)" :disabled="record.finished" class="finish-button">完成</a-button>
+            <a-button class="delete-button" type="primary" @click="delPlan(record)" >删除</a-button>
           </template>
         </template>
       </a-table>
@@ -361,18 +361,30 @@ const modifyExamData = () => {
   overflow: scroll;
   padding: 20px;
   padding-bottom: 0px;
+  min-width:600px;
 }
 
 .plan-list {
   background: #fff;
   border-radius: 8px;
 }
+.finish-button:not(:disabled) {
+  background-color: green ;
+}
 
-.delete-button {
-  margin-left: 10px;
+.delete-button  {
+  margin-left: 0px;
+  background-color:red ;
 }
 
 h3 {
   margin-left: 10px;
+}
+.table-cell{
+  display: flex;
+  align-items: center; 
+  flex-wrap: wrap;     
+  gap: 10px;          
+  height: 100%;        
 }
 </style>
