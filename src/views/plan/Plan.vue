@@ -4,8 +4,8 @@
     <a-carousel autoplay>
       <div><h3>有什么信念，就选择什么态度；有什么态度，就会有什么行为；有什么行为，就产生什么结果。要想结果变得好，必须选择好的信念。</h3></div>
       <div><h3>就快触及太阳的那一刻，突然从楼梯摔下去，放弃了。但是当你再加把劲，触摸到太阳的时候，你会发现一切都值得。</h3></div>
-      <div><h3><img src="/src/assets/1.png" alt="plan1" width="100%" /></h3></div>
-      <div><h3><img src="/src/assets/2.png" alt="plan1" width="100%" /></h3></div>
+      <div><h3>真的做不到吗？没有什么做不到吧！</h3></div>
+      <div><h3>外界的唏嘘不足为虑，用实力让他们闭嘴！</h3></div>
     </a-carousel>
 
     <!-- 总览数据 -->
@@ -99,7 +99,7 @@ const monthlyData = ref({
 
 // 初始化折线图
 const initLineChart = () => {
-  if (lineChartRef.value) {
+  
     const myChart = echarts.init(lineChartRef.value);
     const option = {
       tooltip: { trigger: "axis" },
@@ -127,12 +127,12 @@ const initLineChart = () => {
     };
     myChart.setOption(option);
     window.addEventListener("resize", () => myChart.resize());
-  }
+  
 };
 
 // 初始化柱状图
 const initBarChart = () => {
-  if (barChartRef.value) {
+
     const myChart = echarts.init(barChartRef.value);
     const option = {
       tooltip: { trigger: "axis", formatter: "{b} : {c}%" },
@@ -158,43 +158,73 @@ const initBarChart = () => {
     };
     myChart.setOption(option);
     window.addEventListener("resize", () => myChart.resize());
-  }
+  
 };
 
 // 获取数据
 const fetchData = async (year: number) => {
-  // 统计总数（不分年份）
+  monthlyData.value.months = [];
+  monthlyData.value.createdPlans = [];
+  monthlyData.value.finishedPlans = [];
+  monthlyData.value.completionRate = [];
+
   const totalRes = await getPlanDeatil({ user_id: userInfo.id });
   plans.value = totalRes.data.length;
 
   const finishedRes = await getPlanDeatil({ user_id: userInfo.id, finished: true });
-  finishedPlans.value = finishedRes.data.length;
-
-  // 获取每月数据
+  finishedPlans.value = finishedRes?.data?.length??0;
   const months = ["01","02","03","04","05","06","07","08","09","10","11","12"];
-  const promises = months.map((month, index) => {
-    return getPlanFuzzyInquiry({
+
+  const tempMonths: string[] = [];
+  const tempCreated: number[] = [];
+  const tempFinished: number[] = [];
+
+  await Promise.all(months.map(async (month, index) => {
+    const res = await getPlanFuzzyInquiry({
       user_id: userInfo.id,
       begin_month: month,
-      // year // 👈 后端支持年份后加上这个参数
-    })
-    .then((res) => {
-      const created = res.data?.length || 0;
-      const finished = res.data?.filter((plan: any) => plan.finished).length || 0;
-
-      monthlyData.value.createdPlans[index] = created;
-      monthlyData.value.finishedPlans[index] = finished;
-
-      // 计算完成率
-      monthlyData.value.completionRate[index] =
-        created === 0 ? 0 : parseFloat(((finished / created) * 100).toFixed(1));
     });
+    const created = res.data?.length || 0;
+    const finished = res.data?.filter((p: any) => p.finished).length || 0;
+
+    tempMonths.push(`${index + 1}月`);
+    tempCreated.push(created);
+    tempFinished.push(finished);
+  }));
+
+  const fullMonths = [
+    "1月", "2月", "3月", "4月", "5月", "6月",
+    "7月", "8月", "9月", "10月", "11月", "12月"
+  ];
+  const monthIndexMap = Object.fromEntries(fullMonths.map((m, i) => [m, i]));
+
+  const createdFilled = new Array(12).fill(0);
+  const finishedFilled = new Array(12).fill(0);
+
+  tempMonths.forEach((m, idx) => {
+    const i = monthIndexMap[m];
+    if (i !== undefined) {
+      createdFilled[i] = tempCreated[idx];
+      finishedFilled[i] = tempFinished[idx];
+    }
   });
 
-  await Promise.all(promises);
+  monthlyData.value.months = fullMonths;
+  monthlyData.value.createdPlans = createdFilled;
+  monthlyData.value.finishedPlans = finishedFilled;
+  monthlyData.value.completionRate = createdFilled.map((created, idx) => {
+    const finished = finishedFilled[idx];
+    return created === 0 ? 0 : parseFloat(((finished / created) * 100).toFixed(1));
+  });
+
+  // 打印数据确认
+  console.log("月统计数据", monthlyData.value);
+
   initLineChart();
   initBarChart();
 };
+
+
 
 // 切换年份
 const onYearChange = (year: number) => {
@@ -204,6 +234,7 @@ const onYearChange = (year: number) => {
 
 onMounted(() => {
   fetchData(selectedYear.value);
+  
 });
 </script>
 
