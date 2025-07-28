@@ -146,6 +146,7 @@ const useStore = useUserStore();
 
 onMounted(() => {
   const userInfo = useStore.getUserInfo();
+  
 
   getPlanDeatil({ user_id: userInfo.id }).then((res) => {
     for (let i = 0; i < res.data.length; i++) {
@@ -157,8 +158,15 @@ onMounted(() => {
   });
 
   getExam({ user_id: userInfo.id ?? 0 }).then((res) => {
-    day1.value = dayjs(res.data.date1).diff(dayjs(), "day");
-    day2.value = dayjs(res.data.date2).diff(dayjs(), "day");
+    if (day1.value){
+      day1.value = dayjs(res.data.date1).diff(dayjs(), "day");
+      day1.value = isNaN(day1.value) ? 0 : day1.value;
+    }
+    if (day2.value){
+      day2.value = dayjs(res.data.date2).diff(dayjs(), "day");
+      day2.value = isNaN(day2.value) ? 0 : day2.value;
+    }
+    
   });
 });
 
@@ -334,8 +342,8 @@ const delPlan = (record: any) => {
 const openModifyExamData = ref(false);
 const Day1 = ref<any>();
 const Day2 = ref<any>();
-const day1 = ref<number>();
-const day2 = ref<number>();
+const day1 = ref<number>(0);
+const day2 = ref<number>(0);
 
 const OpenModifyExamData = () => {
   openModifyExamData.value = !openModifyExamData.value;
@@ -343,8 +351,11 @@ const OpenModifyExamData = () => {
 
 const modifyExamData = () => {
   putExam({ user_id: useStore.getUserInfo().id, date1: Day1.value, date2: Day2.value }).then((res: any) => {
-    day1.value = dayjs(res.data.date1).diff(dayjs(), "day");
-    day2.value = dayjs(res.data.date2).diff(dayjs(), "day");
+    day1.value = dayjs(res.data.date1).diff(dayjs(), "day")??0;
+    day1.value = isNaN(day1.value) ? 0 : day1.value;
+    day2.value = dayjs(res.data.date2).diff(dayjs(), "day")??0;
+    day2.value = isNaN(day2.value) ? 0 : day2.value;
+    
   });
   message.success("修改成功");
   setTimeout(() => {
