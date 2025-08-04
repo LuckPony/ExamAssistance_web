@@ -23,8 +23,8 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:5000', // 后端地址
-        // target: 'http://113.44.59.175:5000/', //服务器后端地址
+        // target: 'http://127.0.0.1:5000', // 后端地址
+        target: 'http://113.44.59.175:5000/', //服务器后端地址
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/api'), // 保持/api前缀
       },

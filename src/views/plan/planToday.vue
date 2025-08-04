@@ -90,7 +90,47 @@
           />
         </a-form-item>
       </a-form>
-    </a-modal>      
+    </a-modal>
+    <!-- 修改计划弹窗 -->
+    <a-modal v-model:open="openModifyPlan" title="修改计划" @ok="updatePlan" @cancel="">
+      <a-form>
+        <a-form-item label="计划名称">
+          <a-input v-model:value="addPlanname" placeholder="请输入计划名称" />
+        </a-form-item>
+
+        <a-form-item label="计划内容">
+          <a-input v-model:value="addContent" placeholder="请输入计划内容" />
+        </a-form-item>
+
+        <a-form-item label="开始日期">
+          <a-date-picker
+            v-model:value="addStartTime"
+            placeholder="请选择开始日期"
+            show-time
+            @change="handleStartDateChange"
+          />
+        </a-form-item>
+
+        <a-form-item label="持续天数">
+          <a-input-number
+            v-model:value="durationDays"
+            :min="1"
+            placeholder="输入天数"
+            style="width: 100%"
+            @change="handleDurationChange"
+          />
+        </a-form-item>
+
+        <a-form-item label="截止日期">
+          <a-date-picker
+            v-model:value="addEndTime"
+            placeholder="请选择截止日期"
+            show-time
+            @change="handleEndDateChange"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>       
         
   </div>
 </template>
@@ -102,7 +142,7 @@ import { deletePlan, getPlanDeatil, getPlanFuzzyInquiry, postPlan, putPlan } fro
 import { useUserStore } from "@/stores/user";
 import { message, type TableColumnsType } from "ant-design-vue";
 import dayjs from "dayjs";
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, h } from "vue";
 const useStore = useUserStore();
 onMounted(() => {   //相当于周期钩子函数，周期开始就运行
   const userInfo = useStore.getUserInfo();
@@ -182,7 +222,23 @@ const obtainTableData = (planData:API.plan) => {
 
 // 表格列配置
 const columns: TableColumnsType<TableData> = [
-  { title: "编号", dataIndex: "planid", key: "planid", width: "80px" , customRender:({index}:{index:number}) => {return (pagination.value.current - 1) * pagination.value.pageSize + index + 1} },
+  { title: "编号", dataIndex: "planid", key: "planid", width: "80px" , customRender:({index,record}:{index:number;record:TableData}) => {
+     return h(
+      "div",
+      [
+        h("span", null, `${(pagination.value.current - 1) * pagination.value.pageSize + index + 1}`),
+        h(
+          "span",
+          {
+            class: "my-edit-icon",
+            onClick: () => transformModifyPlan(record)
+          },
+          "✏️"
+        )
+      ]
+    );
+    } },
+     
   { title: "计划名称", dataIndex: "planname", key: "planname",width:"150px" },
   { 
     title: "计划内容", dataIndex: "content", key: "content",
@@ -219,6 +275,8 @@ const addContent = ref("");
 const addStartTime = ref<any>(null);
 const addEndTime = ref<any>(null);
 const durationDays = ref<number | null>(null);
+//修改计划弹窗
+const openModifyPlan = ref(false);
 const handleStartDateChange = (value: any) => {
   if (durationDays.value) {
     addEndTime.value = dayjs(value).add(durationDays.value, "day");
@@ -239,7 +297,24 @@ const handleEndDateChange = (value: any) => {
 
 const transformAddPlan = () => { 
   openAddPlan.value = !openAddPlan.value
+  addPlanname.value = ''
+  addStartTime.value = ''
+  addEndTime.value = ''
+  addContent.value = ''
+  durationDays.value = null
 };
+
+const transformModifyPlan = (record:TableData) => {
+  openModifyPlan.value = !openModifyPlan.value
+  addPlanname.value = record.planname;
+  addContent.value = record.content;
+  addStartTime.value = dayjs(record.begintime);
+  addEndTime.value = dayjs(record.dealtime);
+  durationDays.value = dayjs(record.dealtime).diff(dayjs(record.begintime), "day");
+  planId.value = record.id.toString();
+};
+
+
 const addPlan = () => {
   if (!addStartTime.value || !addEndTime.value) {
     message.error("请填写完整的时间");
@@ -305,6 +380,28 @@ let timer:number;//定时器，用于定时刷新时间
 //设置计划统计
 const plansToday = ref<number>(0);
 const plansTodayUnFinished = ref<number>(0);
+
+//更新计划
+const planId = ref<String>('');
+const updatePlan = () => { 
+  putPlan ({id:planId.value.toString()},{planname:addPlanname.value,description:addContent.value,begin_time:addStartTime.value,deal_time:addEndTime.value,}).then((res) => {
+     
+     if(res.code == 200) { 
+       message.success("修改计划成功");
+       setTimeout(() => { 
+         openModifyPlan.value = !openModifyPlan.value;
+         location.reload();
+       }, 800);
+     }
+     else{
+      message.error("修改计划失败");
+      setTimeout(() => { 
+         openModifyPlan.value = !openModifyPlan.value;
+       }, 800);
+     }
+  });
+  
+};
 </script>
 
 <style scoped>
@@ -337,6 +434,7 @@ h1 {
 .delete-button{
   margin-left: 0px;
   background-color: red;
+  
 }
 h3{
   margin-left:10px;
@@ -346,6 +444,11 @@ h3{
   flex-wrap: wrap;
   align-items: center;
   
+}
+:deep(.my-edit-icon){
+  margin-left: 10px;
+  cursor: pointer;
+  color: #409EFF;
 }
 
 </style>
